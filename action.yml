@@ -21,6 +21,6 @@ runs:
           if [[ -z "$(grep -E "^$release\$" sandbox-tags.txt)" ]]
           then
             echo "Deleting ${{ inputs.s3-path }}/releases/sandbox/$release"
-            # aws s3 rm ${{ inputs.s3-path }}/releases/sandbox/$release
+            aws s3 rm --recursive ${{ inputs.s3-path }}/releases/sandbox/$release
           fi
         done
