@@ -1,0 +1,25 @@
+name: S3 Sandbox Cleanup
+description: A GitHub action to clean up S3 sandbox releases
+branding:
+  icon: check-circle
+  color: green
+inputs:
+  s3Path:
+    description: The S3 Bucket with s3:// protocol prefix
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+
+      - name: Clean up S3 path
+        run: |
+          git branch --remotes --no-merged | grep -o 'releases/sandbox/.*' | tee unmerged-branches.txt
+          for release in $(aws s3 ls $INPUT_S3PATH/releases/sandbox/ | awk '{print $2}' | sed 's|/||g')
+          do
+            if [[ -z "$(grep -E "^releases/sandbox/$release\$" unmerged-branches.txt)" ]]
+            then
+              echo "Deleting $INPUT_S3PATH/releases/sandbox/$release"
+              # aws s3 rm $INPUT_S3PATH/releases/sandbox/$release
+            fi
+          done
