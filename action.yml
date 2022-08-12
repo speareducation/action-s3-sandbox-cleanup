@@ -1,5 +1,5 @@
 name: S3 Sandbox Cleanup
-description: A GitHub action to clean up S3 sandbox releases
+description: A GitHub action to delete S3 sandbox releases that do not exist in Git as branches.
 branding:
   icon: check-circle
   color: green
@@ -14,10 +14,10 @@ runs:
 
       - name: Clean up S3 path
         run: |
-          git branch --remotes --no-merged | grep -o 'releases/sandbox/.*' | tee unmerged-branches.txt
+          git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/||g' | tee sandbox-tags.txt
           for release in $(aws s3 ls $INPUT_S3PATH/releases/sandbox/ | awk '{print $2}' | sed 's|/||g')
           do
-            if [[ -z "$(grep -E "^releases/sandbox/$release\$" unmerged-branches.txt)" ]]
+            if [[ -z "$(grep -E "^$release\$" sandbox-tags.txt)" ]]
             then
               echo "Deleting $INPUT_S3PATH/releases/sandbox/$release"
               # aws s3 rm $INPUT_S3PATH/releases/sandbox/$release
