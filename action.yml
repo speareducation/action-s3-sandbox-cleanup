@@ -4,7 +4,7 @@ branding:
   icon: check-circle
   color: green
 inputs:
-  s3Path:
+  s3-path:
     description: The S3 Bucket with s3:// protocol prefix
     required: true
 
@@ -14,13 +14,13 @@ runs:
     - name: Clean up S3 path
       shell: bash
       run: |
-        echo "S3 Path: $INPUT_S3PATH"
+        echo "S3 Path: ${{ inputs.s3-path }}"
         git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/||g' | tee sandbox-tags.txt
-        for release in $(aws s3 ls $INPUT_S3PATH/releases/sandbox/ | awk '{print $2}' | sed 's|/||g')
+        for release in $(aws s3 ls ${{ inputs.s3-path }}/releases/sandbox/ | grep PRE | awk '{print $2}' | sed 's|/||g')
         do
           if [[ -z "$(grep -E "^$release\$" sandbox-tags.txt)" ]]
           then
-            echo "Deleting $INPUT_S3PATH/releases/sandbox/$release"
-            # aws s3 rm $INPUT_S3PATH/releases/sandbox/$release
+            echo "Deleting ${{ inputs.s3-path }}/releases/sandbox/$release"
+            # aws s3 rm ${{ inputs.s3-path }}/releases/sandbox/$release
           fi
         done

@@ -17,6 +17,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.myKeySecret }}
           AWS_REGION: us-east-1
         with:
-          s3Path: s3://my-bucket/project
+          s3-path: s3://my-bucket/project
 ```
 
