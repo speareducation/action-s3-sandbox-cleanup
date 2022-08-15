@@ -16,7 +16,11 @@ runs:
       run: |
         echo "S3 Path: ${{ inputs.s3-path }}"
         git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/||g' | tee sandbox-tags.txt
-        for release in $(aws s3 ls ${{ inputs.s3-path }}/releases/sandbox/ | grep PRE | awk '{print $2}' | sed 's|/||g')
+        releaseTags=$(aws s3 ls ${{ inputs.s3-path }}/releases/sandbox/ | grep PRE | awk '{print $2}' | sed 's|/||g')
+        echo "Release Tags:"
+        echo $releaseTags
+        IFS=$'\n'
+        for release in $releaseTags
         do
           if [[ -z "$(grep -E "^$release\$" sandbox-tags.txt)" ]]
           then
@@ -24,3 +28,4 @@ runs:
             aws s3 rm --recursive ${{ inputs.s3-path }}/releases/sandbox/$release
           fi
         done
+        unset IFS
