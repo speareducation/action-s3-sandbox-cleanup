@@ -16,9 +16,9 @@ runs:
       run: |
         echo "S3 Path: ${{ inputs.s3-path }}"
         echo "Sandbox Tags:"
-        git ls-remote | (grep -o 'releases/sandbox/.*' || true) | (sed 's|releases/sandbox/||g' || true) | tee sandbox-tags.txt
-        releaseTags=$(aws s3 ls ${{ inputs.s3-path }}/releases/sandbox/ | grep PRE | awk '{print $2}' | sed 's|/||g')
+        git ls-remote | (grep -o 'releases/sandbox/.*' || true) | sed 's|releases/sandbox/||g' | tee sandbox-tags.txt
         echo "Release Tags:"
+        releaseTags=$(aws s3 ls ${{ inputs.s3-path }}/releases/sandbox/ | (grep PRE || true) | awk '{print $2}' | sed 's|/||g')
         echo $releaseTags
         IFS=$'\n'
         for release in $releaseTags
